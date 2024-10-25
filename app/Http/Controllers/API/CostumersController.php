@@ -19,7 +19,9 @@ class CostumersController extends Controller
             return response()->json(['data' => $customers, 'message' => 'No hay clientes disponibles.'], 200);
         }
 
-        return response()->json(['data' => $customers, 'message' => 'Lista de clientes disponible 🐐'], 200);
+        $encryptedData = Crypt::encryptString(json_encode(['data' => $customers, 'message' => 'Lista de clientes disponible 🐐']));
+
+        return response()->json(['encrypted_data' => $encryptedData], 200);
     }
 
     /**
@@ -55,7 +57,9 @@ class CostumersController extends Controller
             $customer->save();
         }
 
-        return response()->json(['customer' => $customer, 'message' => 'Cliente agregado correctamente.'], 200);
+        $encryptedData = Crypt::encryptString(json_encode(['customer' => $customer, 'message' => 'Cliente agregado correctamente.']));
+
+        return response()->json(['encrypted_data' => $encryptedData], 200);
     }
 
     /**
@@ -69,7 +73,10 @@ class CostumersController extends Controller
             return response()->json(['message' => 'Cliente no encontrado.'], 404);
         }
 
-        return response()->json(['customer' => $customer]);
+        $encryptedData = Crypt::encryptString(json_encode(['customer' => $customer]));
+
+        return response()->json(['encrypted_data' => $encryptedData]);
+    }
     }
 
     /**
@@ -127,7 +134,9 @@ class CostumersController extends Controller
             $customer->save();
         }
 
-        return response()->json(['customer' => $customer, 'message' => 'Cliente actualizado correctamente.'], 200);
+        $encryptedData = Crypt::encryptString(json_encode(['customer' => $customer, 'message' => 'Cliente actualizado correctamente.']));
+
+        return response()->json(['encrypted_data' => $encryptedData], 200);
     }
 
     /**
@@ -144,6 +153,8 @@ class CostumersController extends Controller
         $customer->status = 0; // Desactivar el cliente
         $customer->save();
 
-        return response()->json(['customer' => $customer, 'message' => 'Cliente desactivado correctamente.'], 200);
+        $encryptedData = Crypt::encryptString(json_encode(['customer' => $customer, 'message' => 'Cliente desactivado correctamente.']));
+
+        return response()->json(['encrypted_data' => $encryptedData], 200);
     }
 }

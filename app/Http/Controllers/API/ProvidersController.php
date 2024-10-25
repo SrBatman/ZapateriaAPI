@@ -13,13 +13,31 @@ class ProvidersController extends Controller
      */
     public function index()
     {
-    
-        $providers = Provider::where('status', '=','1')->get();
-        if ($providers->isEmpty()) {
-            return response()->json(['data' => $providers, 'message' => 'No hay proovedores disponibles.'], 200);
+        try {
+            $providers = Provider::where('status', '=', '1')->get();
+
+            if ($providers->isEmpty()) {
+                // Cifrar el mensaje
+                $encryptedMessage = Crypt::encryptString('No hay proveedores disponibles.');
+                return response()->json(['data' => [], 'message' => $encryptedMessage], 200);
+            }
+
+            // Cifrar los proveedores
+            $encryptedProviders = $providers->map(function ($provider) {
+                return Crypt::encryptString(json_encode($provider));
+            });
+
+            // Cifrar el mensaje
+            $encryptedMessage = Crypt::encryptString('Aquí están los proveedores 🐐');
+
+            return response()->json(['data' => $encryptedProviders, 'message' => $encryptedMessage], 200);
+        } catch (\Exception $e) {
+            // Capturar otros tipos de errores generales
+            return response()->json([
+                'error' => true,
+                'message' => 'Ocurrió un error inesperado. Por favor, inténtalo más tarde.',
+            ], 500);
         }
-        return response()->json(['data' => $providers, 'message' => 'Aqui estan los proovedores 🐐'], 200);
-     
     }
 
     /**
@@ -27,41 +45,30 @@ class ProvidersController extends Controller
      */
     public function create()
     {
+        // Si deseas devolver algún dato en esta función, descoméntalo y usa algo similar a lo siguiente
         // return response()->json(['providers' => Provider::all()], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProviderRequest $request)
     {
-        //
+        try {
+            $provider = new Provider();
+            $provider->name = $request->name;
+            $provider->contact = $request->contact;
+            $provider->status = 1;
+            $provider->save();
 
-        // $validator = Validator::make($request->all(),[
-        //     'name' => 'required|unique:products,name|max:20',
-        //     'age' => 'required|numeric',
-        //     'password' => 'required|min:7|confirmed'
-        // ]);
-        // if ($validator->fails()) {
-        //     // Return errors or redirect back with errors
-        //     // return $validator->errors();
-        //     return response()->json(['data'=> $validator->errors(), 'message'=> "Wupsi, that doesn't suppost to happen."], 422);
-
-        // }
- 
-        // Retrieve the validated input...
-       // $validated = $validator->validated();
-
-        $provider = new Provider();
-        $provider->name = $request->name;
-        $provider->contact = $request->contact;
-        $provider->status = 1;
-        $provider->save();
-        
-        
-        return response()->json(['product'=> $provider, 'message' => 'Proovedor agregado correctamente.'], 200);
-
-       
+            $encryptedMessage = Crypt::encryptString('Proveedor agregado correctamente.');
+            return response()->json(['provider' => $provider, 'message' => $encryptedMessage], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Ocurrió un error al agregar el proveedor.',
+            ], 500);
+        }
     }
 
     /**
@@ -69,9 +76,23 @@ class ProvidersController extends Controller
      */
     public function show(string $id)
     {
-        //
-        $provider = Provider::where('id','=', $id)->first();
-        return response()->json(['provider'=> $provider]);
+        try {
+            $provider = Provider::where('id', '=', $id)->first();
+
+            if ($provider == null) {
+                $encryptedMessage = Crypt::encryptString('Proveedor no encontrado.');
+                return response()->json(['message' => $encryptedMessage], 404);
+            }
+
+            $encryptedProvider = Crypt::encryptString(json_encode($provider));
+            $encryptedMessage = Crypt::encryptString('Proveedor obtenido correctamente.');
+            return response()->json(['provider' => $encryptedProvider, 'message' => $encryptedMessage], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Ocurrió un error al obtener el proveedor.',
+            ], 500);
+        }
     }
 
     /**
@@ -85,24 +106,32 @@ class ProvidersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(ProviderRequest $request, $id)
     {
-        //
-        
-        $provider = Provider::find($id);
-        if ($provider == null) return response()->json(['message' => 'Proovedor no encontrado.'], 404);
-        if ($request->name) {
-            $provider->name = $request->name;
-        }
-        if ($request->contact) {
-            $provider->contact = $request->contact;
-        }
+        try {
+            $provider = Provider::find($id);
 
-  
-        $provider->save();
+            if ($provider == null) {
+                $encryptedMessage = Crypt::encryptString('Proveedor no encontrado.');
+                return response()->json(['message' => $encryptedMessage], 404);
+            }
 
-      
-        return response()->json(['provider'=> $provider]);
+            // Actualizar los campos del proveedor
+            if ($request->name)
+                $provider->name = $request->name;
+            if ($request->contact)
+                $provider->contact = $request->contact;
+
+            $provider->save();
+
+            $encryptedMessage = Crypt::encryptString('Proveedor actualizado correctamente.');
+            return response()->json(['provider' => $provider, 'message' => $encryptedMessage], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Ocurrió un error al actualizar el proveedor.',
+            ], 500);
+        }
     }
 
     /**
@@ -110,11 +139,24 @@ class ProvidersController extends Controller
      */
     public function destroy($id)
     {
-        //
-        $provider = Provider::find($id);
-        if ($provider == null) return response()->json(['message' => 'Proovedor no encontrado.'], 404);
-        $provider->status = 0;
-        $provider->save();
-        return response()->json(['provider'=> $provider]);
+        try {
+            $provider = Provider::find($id);
+
+            if ($provider == null) {
+                $encryptedMessage = Crypt::encryptString('Proveedor no encontrado.');
+                return response()->json(['message' => $encryptedMessage], 404);
+            }
+
+            $provider->status = 0;
+            $provider->save();
+
+            $encryptedMessage = Crypt::encryptString('Proveedor eliminado correctamente.');
+            return response()->json(['provider' => $provider, 'message' => $encryptedMessage], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Ocurrió un error al eliminar el proveedor.',
+            ], 500);
+        }
     }
 }
