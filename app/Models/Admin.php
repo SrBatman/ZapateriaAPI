@@ -12,13 +12,13 @@ class Admin extends Model
     protected $table = 'admins';
 
     protected $fillable = [
-        'nombre', 
-        'apellidos', 
-        'correo', 
+        'name', 
+        'lastname', 
+        'email', 
         'password', 
-        'imagen', 
-        'estatus', 
-        'direccion', 
+        'picture', 
+        'status', 
+        'address', 
         'role'
     ];
 }

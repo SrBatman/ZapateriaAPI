@@ -58,6 +58,20 @@ class UserAuthController extends Controller
         return response()->json(['message' => 'Credenciales incorrectas.'], 401);
     }
 
+    public function generateToken(Request $request)
+    {
+        // Verifica si el usuario está autenticado
+        if (Auth::check()) {
+            $user = Auth::user();
+            // Genera un nuevo token para el usuario autenticado
+            $token = $user->createToken('Additional Access Token')->plainTextToken;
+
+            return response()->json(['token' => $token], 200);
+        }
+
+        return response()->json(['message' => 'Usuario no autenticado.'], 401);
+    }
+
     public function logout(Request $request)
     {
         // Revocar el token del usuario autenticado

@@ -4,7 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Provider;
+use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\ProviderRequest;
+// use App\Models\Provider;
+use App\Models\ProviderMongo as Provider;
+use Illuminate\Support\Facades\Log;
 
 class ProvidersController extends Controller
 {
@@ -14,8 +18,8 @@ class ProvidersController extends Controller
     public function index()
     {
         try {
-            $providers = Provider::where('status', '=', '1')->get();
-
+            // $providers = Provider::where('status', '=', '1')->get();
+            $providers = Provider::all();
             if ($providers->isEmpty()) {
                 // Cifrar el mensaje
                 $encryptedMessage = Crypt::encryptString('No hay proveedores disponibles.');
@@ -55,6 +59,8 @@ class ProvidersController extends Controller
     public function store(ProviderRequest $request)
     {
         try {
+            Log::error($request->name);
+            Log::error($request->contact);
             $provider = new Provider();
             $provider->name = $request->name;
             $provider->contact = $request->contact;
@@ -62,7 +68,8 @@ class ProvidersController extends Controller
             $provider->save();
 
             $encryptedMessage = Crypt::encryptString('Proveedor agregado correctamente.');
-            return response()->json(['provider' => $provider, 'message' => $encryptedMessage], 200);
+            $encryptedProvider = Crypt::encryptString(json_encode($provider));
+            return response()->json(['provider' => $encryptedProvider, 'message' => $encryptedMessage], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -106,7 +113,7 @@ class ProvidersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProviderRequest $request, $id)
+    public function update(Request $request, $id)
     {
         try {
             $provider = Provider::find($id);

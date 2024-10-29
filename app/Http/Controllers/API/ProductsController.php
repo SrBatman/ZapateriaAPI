@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\ProductRequest;
 use App\Models\Provider;
 
 class ProductsController extends Controller
@@ -151,7 +153,7 @@ class ProductsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductRequest $request, $id)
+    public function update(Request $request, $id)
     {
         try {
             $product = Product::find($id);

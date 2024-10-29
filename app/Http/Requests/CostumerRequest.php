@@ -3,7 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 class CostumerRequest extends FormRequest
 {
     /**
@@ -11,7 +12,7 @@ class CostumerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,5 +25,14 @@ class CostumerRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+       throw new HttpResponseException(response()->json([
+        'success'=> false,
+        'message'=> 'Error de validación',
+        'errors'=> $validator->errors()
+        ], 422));
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\CostumerRequest;
 use App\Models\Costumer;
 
 class CostumersController extends Controller
@@ -35,7 +37,7 @@ class CostumersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CostumerRequest $request)
     {
         $customer = new Costumer();
         $customer->name = $request->name;
@@ -77,7 +79,7 @@ class CostumersController extends Controller
 
         return response()->json(['encrypted_data' => $encryptedData]);
     }
-    }
+    
 
     /**
      * Show the form for editing the specified resource.
