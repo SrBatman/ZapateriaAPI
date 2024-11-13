@@ -23,9 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-
+Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
+    
     Route::get('/products/{id}', [ProductsController::class, 'show'])->name('products.show');
     Route::post('/products', [ProductsController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [ProductsController::class, 'update'])->name('products.update');
